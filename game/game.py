@@ -21,6 +21,7 @@ game_active = True
 
 score = 0
 high_score = 0
+can_score = True
 
 game_font = pygame.font.Font(os.path.join(game_dir, '04B_19.TTF'), 40)
 
@@ -61,6 +62,7 @@ game_over_rect = game_over_surface.get_rect(center=(288, 512))
 
 flap_sound = pygame.mixer.Sound(os.path.join(sound_dir, 'sfx_wing.wav'))
 hit_sound = pygame.mixer.Sound(os.path.join(sound_dir, 'sfx_hit.wav'))
+score_sound = pygame.mixer.Sound(os.path.join(sound_dir, 'sfx_point.wav'))
 
 
 def draw_floor():
@@ -78,7 +80,8 @@ def create_pipe():
 def move_pipes(pipes):
     for pipe in pipes:
         pipe.centerx -= 5
-    return pipes
+    visible_pipes = [pipe for pipe in pipes if pipe.right > -50]
+    return visible_pipes
 
 
 def draw_pipes(pipes):
@@ -91,12 +94,15 @@ def draw_pipes(pipes):
 
 
 def check_collision(pipes):
+    global can_score
     for pipe in pipes:
         if bird_rect.colliderect(pipe):
             hit_sound.play()
+            can_score = True
             return False
     if bird_rect.top <= -10 or bird_rect.bottom >= 900:
         hit_sound.play()
+        can_score = True
         return False
     return True
 
@@ -135,6 +141,18 @@ def update_score(score, high_score):
     return high_score
 
 
+def pipe_score_check():
+    global score, can_score
+    if pipe_list:
+        for pipe in pipe_list:
+            if 95 < pipe.centerx < 105 and can_score:
+                score += 1
+                score_sound.play()
+                can_score = False
+            if pipe.centerx < 0:
+                can_score = True
+
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -144,7 +162,6 @@ while True:
             if event.key == pygame.K_SPACE and game_active:
                 bird_movement = 0
                 bird_movement -= 12
-                score += 1
                 flap_sound.play()
             if event.key == pygame.K_SPACE and game_active == False:
                 game_active = True
@@ -173,6 +190,8 @@ while True:
 
         pipe_list = move_pipes(pipe_list)
         draw_pipes(pipe_list)
+
+        pipe_score_check()
         score_display('main_game')
     else:
         screen.blit(game_over_surface, game_over_rect)
