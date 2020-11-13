@@ -15,6 +15,7 @@ assets_dir = os.path.join(game_dir, 'assets')
 
 gravity = 0.25
 bird_movement = 0
+game_active = True
 
 bg_surface = pygame.image.load(os.path.join(
     assets_dir, 'background-day.png')).convert()
@@ -66,6 +67,15 @@ def draw_pipes(pipes):
             screen.blit(flip_pipe, pipe)
 
 
+def check_collision(pipes):
+    for pipe in pipes:
+        if bird_rect.colliderect(pipe):
+            return False
+    if bird_rect.top <= -100 or bird_rect.bottom >= 900:
+        return False
+    return True
+
+
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -80,12 +90,15 @@ while True:
 
     screen.blit(bg_surface, (0, 0))
 
-    bird_movement += gravity
-    bird_rect.centery += bird_movement
-    screen.blit(bird_surface, bird_rect)
+    if game_active:
+        bird_movement += gravity
+        bird_rect.centery += bird_movement
+        screen.blit(bird_surface, bird_rect)
 
-    pipe_list = move_pipes(pipe_list)
-    draw_pipes(pipe_list)
+        game_active = check_collision(pipe_list)
+
+        pipe_list = move_pipes(pipe_list)
+        draw_pipes(pipe_list)
 
     floor_x_pos -= 1
     draw_floor()
