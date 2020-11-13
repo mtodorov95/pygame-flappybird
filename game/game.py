@@ -3,6 +3,7 @@ import sys
 import os
 import random
 
+#pygame.mixer.pre_init(frequency=44100, size=16, channels=1, buffer=512)
 pygame.init()
 
 screen = pygame.display.set_mode((576, 1024))
@@ -12,6 +13,7 @@ clock = pygame.time.Clock()
 base_dir = os.getcwd()
 game_dir = os.path.join(base_dir, 'game')
 assets_dir = os.path.join(game_dir, 'assets')
+sound_dir = os.path.join(game_dir, 'sound')
 
 gravity = 0.25
 bird_movement = 0
@@ -57,6 +59,9 @@ game_over_surface = pygame.transform.scale2x(pygame.image.load(
     os.path.join(assets_dir, 'message.png')).convert_alpha())
 game_over_rect = game_over_surface.get_rect(center=(288, 512))
 
+flap_sound = pygame.mixer.Sound(os.path.join(sound_dir, 'sfx_wing.wav'))
+hit_sound = pygame.mixer.Sound(os.path.join(sound_dir, 'sfx_hit.wav'))
+
 
 def draw_floor():
     screen.blit(floor_surface, (floor_x_pos, 900))
@@ -88,6 +93,7 @@ def draw_pipes(pipes):
 def check_collision(pipes):
     for pipe in pipes:
         if bird_rect.colliderect(pipe):
+            hit_sound.play()
             return False
     if bird_rect.top <= -100 or bird_rect.bottom >= 900:
         return False
@@ -138,6 +144,7 @@ while True:
                 bird_movement = 0
                 bird_movement -= 12
                 score += 1
+                flap_sound.play()
             if event.key == pygame.K_SPACE and game_active == False:
                 game_active = True
                 pipe_list.clear()
