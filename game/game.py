@@ -95,7 +95,8 @@ def check_collision(pipes):
         if bird_rect.colliderect(pipe):
             hit_sound.play()
             return False
-    if bird_rect.top <= -100 or bird_rect.bottom >= 900:
+    if bird_rect.top <= -10 or bird_rect.bottom >= 900:
+        hit_sound.play()
         return False
     return True
 
