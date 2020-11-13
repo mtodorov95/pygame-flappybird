@@ -53,6 +53,10 @@ SPAWNPIPE = pygame.USEREVENT
 pygame.time.set_timer(SPAWNPIPE, 1200)
 pipe_height = [400, 600, 800]
 
+game_over_surface = pygame.transform.scale2x(pygame.image.load(
+    os.path.join(assets_dir, 'message.png')).convert_alpha())
+game_over_rect = game_over_surface.get_rect(center=(288, 512))
+
 
 def draw_floor():
     screen.blit(floor_surface, (floor_x_pos, 900))
@@ -114,7 +118,7 @@ def score_display(game_state):
 
         high_score_surface = game_font.render(
             f'High Score: {high_score}', True, (255, 255, 255))
-        high_score_rect = high_score_surface.get_rect(center=(288, 512))
+        high_score_rect = high_score_surface.get_rect(center=(288, 855))
         screen.blit(high_score_surface, high_score_rect)
 
 
@@ -163,6 +167,7 @@ while True:
         draw_pipes(pipe_list)
         score_display('main_game')
     else:
+        screen.blit(game_over_surface, game_over_rect)
         high_score = update_score(score, high_score)
         score_display('game_over')
 
